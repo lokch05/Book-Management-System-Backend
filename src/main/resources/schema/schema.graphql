@@ -1,0 +1,45 @@
+type Query {
+    retrieveBooks(titleFilter: String): [Book]!
+    retrieveBookById(idFilter: ID!): Book
+    retrieveAuthors(nameFilter: String): [Author]!
+    retrieveAuthorById(idFilter: ID!): Author
+}
+
+type Mutation {
+    # For Book
+    createBook(title: String!, publicationYear: Int): Book!
+    updateBookById(id: ID!, title: String, publicationYear: Int): Book!
+    deleteBookById(id: ID!): Boolean!
+    bookAddAuthor(id: ID!, author: AuthorInput!): Book!
+    bookAddAuthorByAuthorId(id: ID!, authorId: ID!): Book!
+    bookRemoveAuthorByAuthorId(id: ID!, authorId: ID!): Book!
+    # For Author
+    createAuthor(name: String!): Author!
+    updateAuthorById(id: ID!, name: String): Author!
+    deleteAuthorById(id: ID!): Boolean!
+    authorAddBook(id: ID!, book: BookInput!): Author!
+    authorAddBookByBookId(id: ID!, bookId: ID!): Author!
+    authorRemoveBookByBookId(id: ID!, bookId: ID!): Author!
+}
+
+type Book {
+    id: ID!
+    title: String!
+    publicationYear: Int
+    authors: [Author]!
+}
+
+input BookInput {
+    title: String!
+    publicationYear: Int
+}
+
+type Author {
+    id: ID!
+    name: String!
+    books: [Book]!
+}
+
+input AuthorInput {
+    name: String!
+}

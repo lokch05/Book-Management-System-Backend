@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: bookmanagementsystem
+  datasource:
+    platform: mysql
+    initialization-mode: always
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # username: root
+    # password: secret
+    # url: jdbc:mysql://localhost:3306/book_management_system
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create-drop
+      show-sql: true
+
+logging:
+  level:
+    org.org.hibernate: INFO
+    org:
+      springframework: ERROR
+      hibernate:
+        SQL: DEBUG
+        orm.jdbc.bind: TRACE
+        stat: DEBUG
+        SQL_SLOW: INFO
+        cache: DEBUG

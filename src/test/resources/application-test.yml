@@ -1,0 +1,25 @@
+logging:
+  level:
+    org.org.hibernate: INFO
+    org:
+      hibernate:
+        SQL: DEBUG
+        orm.jdbc.bind: TRACE
+        stat: DEBUG
+        SQL_SLOW: INFO
+        cache: DEBUG
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      max-life-time: 600000
+  jpa:
+    hibernate.ddl-auto: create-drop
+    show-sql: true
+  main:
+    allow-bean-definition-overriding: true
+
+server:
+  error:
+    include-message: always
