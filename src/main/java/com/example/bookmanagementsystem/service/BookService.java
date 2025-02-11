@@ -1,26 +1,18 @@
 package com.example.bookmanagementsystem.service;
 
+import com.example.bookmanagementsystem.dto.BookInput;
 import com.example.bookmanagementsystem.model.Book;
-import com.netflix.graphql.dgs.DgsQuery;
-import com.netflix.graphql.dgs.InputArgument;
-import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
 import java.util.Optional;
 
 public interface BookService {
-	List<Book> retrieveBooks(String titleFilter);
+	List<Book> getBooks(String titleFilter);
 
-	Optional<Book> retrieveBookById(String idFilter);
+	Optional<Book> getBookById(Integer id);
 
-	Book createBook(String name, Integer publicationYear);
+	Book createBook(BookInput book);
 
-	Book updateBookById(String id, String name, Integer publicationYear);
+	Book updateBookById(BookInput book);
 
-	Book bookAddAuthor(String id, DataFetchingEnvironment dataFetchingEnvironment);
-
-	Book bookAddAuthorByAuthorId(String id, String authorId);
-
-	Book bookRemoveAuthorByAuthorId(String id, String authorId);
-
-	boolean deleteBookById(String id);
+	boolean deleteBookById(Integer id);
 }

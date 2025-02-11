@@ -1,24 +1,23 @@
 package com.example.bookmanagementsystem.service;
 
+import com.example.bookmanagementsystem.dto.AuthorInput;
 import com.example.bookmanagementsystem.model.Author;
+import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public interface AuthorService {
-	List<Author> retrieveAuthors(String nameFilter);
+	List<Author> getAuthors(String nameFilter);
 
-	Optional<Author> retrieveAuthorById(String idFilter);
+	List<Author> getAuthorsByIds(List<Integer> ids);
 
-	Author createAuthor(String name);
+	Optional<Author> getAuthorById(Integer id);
 
-	Author updateAuthorById(String id, String name);
+	Author createAuthor(AuthorInput author);
 
-	Author authorAddBook(String id, DataFetchingEnvironment dataFetchingEnvironment);
+	Author updateAuthorById(AuthorInput authorInput);
 
-	Author authorAddBookByBookId(String id, String bookId);
-
-	Author authorRemoveBookByBookId(String id, String bookId);
-
-	boolean deleteAuthorById(String id);
+	boolean deleteAuthorById(Integer id);
 }

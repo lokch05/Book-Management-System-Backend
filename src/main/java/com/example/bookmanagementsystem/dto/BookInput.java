@@ -1,5 +1,10 @@
 package com.example.bookmanagementsystem.dto;
 
-public record BookInput(String title, int publicationYear) {
+import java.util.List;
 
-}
+public record BookInput(
+	String id,
+	String title,
+	Integer publicationYear,
+	List<String> authorsId
+) {}

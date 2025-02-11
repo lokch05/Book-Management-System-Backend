@@ -1,5 +1,9 @@
 package com.example.bookmanagementsystem.dto;
 
-public record AuthorInput(String name) {
-	
-}
+import java.util.List;
+
+public record AuthorInput(
+	String id,
+	String name,
+	List<String> booksId
+) {}

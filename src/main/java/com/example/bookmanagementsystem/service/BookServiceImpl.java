@@ -1,36 +1,25 @@
 package com.example.bookmanagementsystem.service;
 
-import com.example.bookmanagementsystem.dto.AuthorInput;
 import com.example.bookmanagementsystem.dto.BookInput;
 import com.example.bookmanagementsystem.model.Author;
 import com.example.bookmanagementsystem.model.Book;
 import com.example.bookmanagementsystem.repository.AuthorRepository;
 import com.example.bookmanagementsystem.repository.BookRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.graphql.dgs.DgsComponent;
-import com.netflix.graphql.dgs.DgsMutation;
-import com.netflix.graphql.dgs.DgsQuery;
-import com.netflix.graphql.dgs.InputArgument;
-import graphql.schema.DataFetchingEnvironment;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import javax.swing.text.html.Option;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-@DgsComponent
+@Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
-	private final BookRepository bookRepository;
 	private final AuthorRepository authorRepository;
+	private final BookRepository bookRepository;
 
 	@Override
-	@DgsQuery
-	public List<Book> retrieveBooks(
-		@InputArgument String titleFilter
-	) {
+	public List<Book> getBooks(String titleFilter) {
 		if(titleFilter == null)
 			return bookRepository.findAll();
 
@@ -38,139 +27,60 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
-	@DgsQuery
-	public Optional<Book> retrieveBookById(
-		@InputArgument String idFilter
-	) {
-		if (idFilter == null)
-			throw new NullPointerException("Book ID cannot be null!");
-
-		return bookRepository.findById(Integer.parseInt(idFilter));
+	public Optional<Book> getBookById(Integer id) {
+		return bookRepository.findById(id);
 	}
 
 	@Override
-	@DgsMutation
-	public Book createBook(
-		@InputArgument String title,
-		@InputArgument Integer publicationYear
-	) {
-		if (title == null || title.isBlank())
-			throw new IllegalArgumentException("Book title cannot be empty!");
+	public Book createBook(BookInput book) {
+		if (book.title().isBlank())
+			throw new IllegalArgumentException("Book title cannot be blank!");
+
+		List<Author> authors = findAuthorsByIds(book.authorsId());
 
 		Book newBook = Book.builder()
-			.title(title)
-			.publicationYear(publicationYear)
+			.title(book.title())
+			.publicationYear(book.publicationYear())
+			.authors(authors)
 			.build();
 
 		return bookRepository.save(newBook);
 	}
 
 	@Override
-	@DgsMutation
-	public Book updateBookById(
-		@InputArgument String id,
-		@InputArgument String title,
-		@InputArgument Integer publicationYear
-	) {
-		Optional<Book> ob = bookRepository.findById(Integer.parseInt(id));
+	public Book updateBookById(BookInput book) {
+		if (book.id().isBlank())
+			throw new IllegalArgumentException("Book ID cannot be blank!");
 
-		if (ob.isEmpty()) {
-			throw new EntityNotFoundException(
-				String.format("Book with id %s not found!", id));
-		}
+		Book bookToBeUpdated =
+			bookRepository.findById(Integer.parseInt(book.id()))
+			.orElseThrow(() -> new EntityNotFoundException(
+				String.format("Book with ID %s not found!", book.id())));
 
-		Book bookToBeUpdated = ob.get();
+		if (!book.title().isBlank())
+			bookToBeUpdated.setTitle(book.title());
 
-		if (title != null && !title.isBlank())
-			bookToBeUpdated.setTitle(title);
+		bookToBeUpdated.setPublicationYear(book.publicationYear());
 
-		bookToBeUpdated.setPublicationYear(publicationYear);
+		List<Author> authors = findAuthorsByIds(book.authorsId());
+		bookToBeUpdated.setAuthors(authors);
 
 		return bookRepository.save(bookToBeUpdated);
 	}
 
 	@Override
-	@DgsMutation
-	public Book bookAddAuthor(
-		@InputArgument String id,
-		DataFetchingEnvironment dataFetchingEnvironment
-	) {
-		Map<String,Object> input = dataFetchingEnvironment.getArgument("author");
-		AuthorInput authorInput = new ObjectMapper().convertValue(input, AuthorInput.class);
+	public boolean deleteBookById(Integer id) {
+		bookRepository.deleteById(id);
 
-		if (authorInput == null)
-			throw new NullPointerException("Author input cannot be null!");
-
-		Optional<Book> ob = bookRepository.findById(Integer.parseInt(id));
-
-		if (ob.isEmpty()) {
-			throw new EntityNotFoundException(
-				String.format("Book with id %s not found!", id));
-		}
-
-		Book book = ob.get();
-
-		Author newAuthor = Author.builder()
-			.name(authorInput.name())
-			.build();
-
-		book.getAuthors().add(newAuthor);
-
-		return bookRepository.save(book);
+		return bookRepository.findById(id).isEmpty();
 	}
 
-	@Override
-	@DgsMutation
-	public Book bookAddAuthorByAuthorId(
-		@InputArgument String id,
-		@InputArgument String authorId
-	) {
-		Optional<Book> ob = bookRepository.findById(Integer.parseInt(id));
-		if (ob.isEmpty()) {
-			throw new EntityNotFoundException(
-				String.format("Book with id %s not found!", id));
-		}
+	private List<Author> findAuthorsByIds(List<String> authorsId) {
+		if (authorsId.isEmpty())
+			throw new IllegalArgumentException("Authors ID cannot be empty!");
 
-		Optional<Author> oa = authorRepository.findById(Integer.parseInt(authorId));
-		if (oa.isEmpty()) {
-			throw new EntityNotFoundException(
-				String.format("Author with id %s not found!", authorId));
-		}
+		List<Integer> intAuthorsId = authorsId.stream().map(Integer::parseInt).toList();
 
-		Book book = ob.get();
-		Author author = oa.get();
-		book.getAuthors().add(author);
-
-		return bookRepository.save(book);
-	}
-
-	@Override
-	@DgsMutation
-	public Book bookRemoveAuthorByAuthorId(
-		@InputArgument String id,
-		@InputArgument String authorId
-	) {
-		Optional<Book> ob = bookRepository.findById(Integer.parseInt(id));
-		if (ob.isEmpty()) {
-			throw new EntityNotFoundException(
-				String.format("Book with id %s not found!", id));
-		}
-
-		Book book = ob.get();
-		List<Author> authors = book.getAuthors()
-			.stream().filter(
-				(author -> author.getId() != Integer.parseInt(authorId)))
-			.toList();
-		book.setAuthors(authors);
-
-		return bookRepository.save(book);
-	}
-
-	@Override
-	@DgsMutation
-	public boolean deleteBookById(@InputArgument String id) {
-		bookRepository.deleteById(Integer.parseInt(id));
-
-		return bookRepository.findById(Integer.parseInt(id)).isEmpty();
+		return authorRepository.findAllById(intAuthorsId);
 	}
 }

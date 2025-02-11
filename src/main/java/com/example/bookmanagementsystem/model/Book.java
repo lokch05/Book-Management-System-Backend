@@ -43,14 +43,14 @@ public class Book {
 	private String title;
 
 	@Column(name = "publication_year")
-	private int publicationYear;
+	private Integer publicationYear;
 
-	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+	@ManyToMany
 	@JoinTable(
 		name = "book_author",
 		joinColumns = @JoinColumn(name = "book_id"),
 		inverseJoinColumns = @JoinColumn(name = "author_id"))
-	private List<Author> authors = List.of();
+	private List<Author> authors;
 
 	public Book(String title, List<Author> authors) {
 		this.title = title;

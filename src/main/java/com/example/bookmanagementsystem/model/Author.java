@@ -42,12 +42,12 @@ public class Author {
 	@Column(nullable = false)
 	private String name;
 
-	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinTable(
 		name = "book_author",
 		joinColumns = @JoinColumn(name = "author_id"),
 		inverseJoinColumns = @JoinColumn(name = "book_id"))
-	private List<Book> books = List.of();
+	private List<Book> books;
 
 	public Author(String name) {
 		this.name = name;

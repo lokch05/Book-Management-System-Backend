@@ -1,25 +1,19 @@
 type Query {
-    retrieveBooks(titleFilter: String): [Book]!
-    retrieveBookById(idFilter: ID!): Book
-    retrieveAuthors(nameFilter: String): [Author]!
-    retrieveAuthorById(idFilter: ID!): Author
+    getAuthors(nameFilter: String): [Author]!
+    getAuthorById(id: ID!): Author
+
+    getBooks(titleFilter: String): [Book]!
+    getBookById(id: ID!): Book
 }
 
 type Mutation {
-    # For Book
-    createBook(title: String!, publicationYear: Int): Book!
-    updateBookById(id: ID!, title: String, publicationYear: Int): Book!
-    deleteBookById(id: ID!): Boolean!
-    bookAddAuthor(id: ID!, author: AuthorInput!): Book!
-    bookAddAuthorByAuthorId(id: ID!, authorId: ID!): Book!
-    bookRemoveAuthorByAuthorId(id: ID!, authorId: ID!): Book!
-    # For Author
-    createAuthor(name: String!): Author!
-    updateAuthorById(id: ID!, name: String): Author!
+    createAuthor(author: AuthorInput!): Author!
+    updateAuthorById(author: AuthorInput!): Author!
     deleteAuthorById(id: ID!): Boolean!
-    authorAddBook(id: ID!, book: BookInput!): Author!
-    authorAddBookByBookId(id: ID!, bookId: ID!): Author!
-    authorRemoveBookByBookId(id: ID!, bookId: ID!): Author!
+
+    createBook(book: BookInput!): Book!
+    updateBookById(book: BookInput!): Book!
+    deleteBookById(id: ID!): Boolean!
 }
 
 type Book {
@@ -30,8 +24,10 @@ type Book {
 }
 
 input BookInput {
+    id: ID,
     title: String!
     publicationYear: Int
+    authorsId: [ID!]!
 }
 
 type Author {
@@ -41,5 +37,7 @@ type Author {
 }
 
 input AuthorInput {
+    id: ID
     name: String!
+    booksId: [ID]
 }
